@@ -2,7 +2,9 @@
   "name": "test-task",
   "version": "1.0.0",
   "private": true,
-  "scripts": {
+  "engines": {
+    "node": "14.13.0"
+  },  "scripts": {
     "build": "node ace build --production",
     "start": "node server.js",
     "dev": "node ace serve --watch"
