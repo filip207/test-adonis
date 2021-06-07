@@ -30,7 +30,7 @@ export default class CreateUserValidator {
 	  rules.unique({ table: "users", column: "email" }),
 	]),
 	username: schema.string({ trim: true }, [
-	  rules.unique({ table: "username", column: "username" }),
+	  rules.unique({ table: "users", column: "username" }),
 	]),
 	password: schema.string({ trim: true }, [rules.confirmed()]),
   })
