@@ -1,24 +1,12 @@
 import User from "App/Models/User";
-import { schema, rules } from "@ioc:Adonis/Core/Validator";
 import { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
+import CreateUser from "App/Validators/CreateUserValidator";
 
 export default class AuthController {
-  public async register({ request, auth }: HttpContextContract) {
+  public async register({ request, auth, response }: HttpContextContract) {
     // TODO: add/improve validation & error handler
     try {
-      /* simple validation */
-      const validationSchema = schema.create({
-        email: schema.string({ trim: true }, [
-          rules.email(),
-          rules.unique({ table: "users", column: "email" }),
-        ]),
-        username: schema.string({ trim: true }),
-        password: schema.string({ trim: true }, [rules.confirmed()]),
-      });
-
-      const userDetails = await request.validate({
-        schema: validationSchema,
-      });
+      const userDetails = await request.validate(CreateUser);
 
       const user = new User();
       user.email = userDetails.email;
@@ -29,11 +17,11 @@ export default class AuthController {
       return token;
     } catch (error) {
       console.log(error);
-      return false;
+      return response.badRequest(error.messages);
     }
   }
 
-  public async login({ auth, request }: HttpContextContract) {
+  public async login({ auth, request, response }: HttpContextContract) {
     // TODO: add/improve validation & error handler
     try {
       const email = request.input("email");
@@ -41,9 +29,9 @@ export default class AuthController {
       const token = await auth.use("api").attempt(email, password);
       return token;
     } catch (error) {
-      // TODO: error handler
       console.log(error);
-      return false;
+      // TODO: error handler
+      return response.badRequest("Failed! Please check your email or password.");
     }
   }
 

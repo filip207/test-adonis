@@ -1,5 +1,6 @@
 import { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
 import Product from "App/Models/Product";
+import CreateProduct from "App/Validators/CreateProductValidator";
 
 export default class ProductsController {
   public async index({}: HttpContextContract) {
@@ -49,21 +50,23 @@ export default class ProductsController {
   }
 
   public async store(
-    { auth, request }: HttpContextContract // TODO: add/improve validation & error handler
+    { auth, request, response }: HttpContextContract // TODO: add/improve validation & error handler
   ) {
     try {
+      const productDetails = await request.validate(CreateProduct);
       const user = await auth.authenticate();
       const product = new Product();
 
-      product.title = request.input("title");
-      product.description = request.input("description");
-      product.productCategoryId = request.input("product_category_id");
-      product.productSubCategoryId = request.input("product_sub_category_id");
+      product.title = productDetails.title;
+      product.description = productDetails.description;
+      product.productCategoryId = productDetails.product_category_id;
+      product.productSubCategoryId = productDetails.product_sub_category_id;
       product.userId = user.id;
       await product.save();
       return product;
     } catch (error) {
       console.log(error);
+      return response.badRequest(error.messages);
     }
   }
 
